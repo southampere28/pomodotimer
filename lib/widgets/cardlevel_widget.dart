@@ -23,9 +23,9 @@ class _CardLevelState extends State<CardLevel> {
       width: double.infinity,
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       decoration: BoxDecoration(
-          color: widget.isActive ? Colors.black : Colors.transparent,
+          color: widget.isActive ? blackActiveColor : Colors.transparent,
           borderRadius: const BorderRadius.all(Radius.circular(15)),
-          border: Border.all(color: Colors.black, width: 2)),
+          border: Border.all(color: blackActiveColor, width: 2)),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
@@ -58,6 +58,71 @@ class _CardLevelState extends State<CardLevel> {
                         ),
                 );
               })
+        ],
+      ),
+    );
+  }
+}
+
+class CardLevelCustom extends StatefulWidget {
+  const CardLevelCustom({super.key, required this.isActive});
+
+  final bool isActive;
+
+  @override
+  State<CardLevelCustom> createState() => _CardLevelCustomState();
+}
+
+class _CardLevelCustomState extends State<CardLevelCustom> {
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      height: 146,
+      width: double.infinity,
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      decoration: BoxDecoration(
+          color: widget.isActive ? blackActiveColor : Colors.transparent,
+          borderRadius: const BorderRadius.all(Radius.circular(15)),
+          border: Border.all(color: blackActiveColor, width: 2)),
+      child: Stack(
+        alignment: Alignment.bottomLeft,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: [
+              Icon(
+                Icons.arrow_forward,
+                size: 24,
+                color: widget.isActive ? whiteColor : blackActiveColor,
+              )
+            ],
+          ),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Text("Custom",
+                  style: widget.isActive
+                      ? primaryTextStyle.copyWith(
+                          fontSize: 16, fontWeight: semiBold, color: whiteColor)
+                      : primaryTextStyle.copyWith(
+                          fontSize: 16,
+                          fontWeight: semiBold,
+                        )),
+              const SizedBox(
+                height: 12,
+              ),
+              Text(
+                'you also can make your preference as your own',
+                style: widget.isActive
+                    ? primaryTextStyle.copyWith(
+                        fontSize: 12, fontWeight: regular, color: Colors.white)
+                    : primaryTextStyle.copyWith(
+                        fontSize: 12,
+                        fontWeight: regular,
+                      ),
+              ),
+            ],
+          ),
         ],
       ),
     );
