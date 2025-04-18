@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:pomodotimer/model/timer_item.dart';
+import 'package:pomodotimer/providers/timer_provider.dart';
 import 'package:pomodotimer/theme.dart';
 import 'package:pomodotimer/widgets/header_widget.dart';
+import 'package:provider/provider.dart';
 
 class CustomPage extends StatefulWidget {
   const CustomPage({super.key});
@@ -10,19 +13,9 @@ class CustomPage extends StatefulWidget {
 }
 
 class _CustomPageState extends State<CustomPage> {
-  List<Map<String, dynamic>> dataExample = [
-    {"title": "work", "time": "25 min"},
-    {"title": "break", "time": "5 min"},
-    {"title": "work", "time": "25 min"},
-    {"title": "break", "time": "5 min"},
-    {"title": "work", "time": "25 min"},
-    {"title": "break", "time": "5 min"},
-  ];
-
   @override
   Widget build(BuildContext context) {
-    final ColorScheme colorScheme = Theme.of(context).colorScheme;
-    final Color evenItemColor = colorScheme.primary.withOpacity(0.15);
+    TimerProvider timerprovider = Provider.of<TimerProvider>(context);
 
     return SafeArea(
       child: Scaffold(
@@ -46,40 +39,79 @@ class _CustomPageState extends State<CustomPage> {
                 shrinkWrap: true,
                 padding: const EdgeInsets.symmetric(horizontal: 4),
                 children: <Widget>[
-                  for (int index = 0; index < dataExample.length; index += 1)
+                  for (int index = 0;
+                      index < timerprovider.customTimers.length;
+                      index += 1)
                     Padding(
                       key: Key('$index'),
                       padding: const EdgeInsets.symmetric(vertical: 8),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text('${dataExample[index]["time"]}'),
+                          Text('${timerprovider.customTimers[index].timer}'),
                           ListTile(
-                            tileColor: evenItemColor,
-                            title: Text(dataExample[index]["title"]),
+                            tileColor: Colors.grey.shade300,
+                            title: Text(
+                              timerprovider.customTimers[index].title,
+                              style: primaryTextStyle.copyWith(
+                                fontSize: 16,
+                              ),
+                            ),
+                            trailing: GestureDetector(
+                                onTap: () {
+                                  timerprovider.removeTimer(index);
+                                },
+                                child: const Icon(
+                                  Icons.delete,
+                                  color: alertColor,
+                                )),
                           ),
                         ],
                       ),
                     ),
                 ],
                 onReorder: (int oldIndex, int newIndex) {
-                  setState(() {
-                    if (oldIndex < newIndex) {
-                      newIndex -= 1;
-                    }
-                    final item = dataExample.removeAt(oldIndex);
-                    dataExample.insert(newIndex, item);
-                  });
+                  timerprovider.reorderTimer(oldIndex, newIndex);
                 },
               ),
               const SizedBox(
                 height: 16,
               ),
-              Text('Total : 2 Hour 15 min')
+              Text(
+                  'Total : ${convertMinutesToHoursAndMinutes(timerprovider.countTimeLength())}'),
+              const SizedBox(
+                height: 100,
+              )
             ],
           ),
         ),
+        floatingActionButton: FloatingActionButton(
+            child: const Icon(Icons.add),
+            onPressed: () {
+              timerprovider
+                  .addTimer(TimerItem(title: "Short Break", timer: 15));
+            }),
       ),
     );
+  }
+}
+
+String convertMinutesToHoursAndMinutes(int totalMinutes) {
+  // Handle negative input
+  if (totalMinutes < 0) {
+    return "Invalid input: minutes cannot be negative";
+  }
+
+  // Calculate hours and remaining minutes
+  final hours = totalMinutes ~/ 60; // Integer division in Dart
+  final minutes = totalMinutes % 60;
+
+  // Format the output
+  if (hours == 0) {
+    return "$minutes min";
+  } else if (minutes == 0) {
+    return "$hours hour${hours != 1 ? 's' : ''}";
+  } else {
+    return "$hours hour${hours != 1 ? 's' : ''} $minutes min";
   }
 }
